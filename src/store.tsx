@@ -1,5 +1,5 @@
-import { BaseRoomConfig } from "@sqlrooms/room-store";
 import {
+    BaseRoomConfig,
     createRoomShellSlice,
     createRoomStore,
     type RoomShellSliceState,
@@ -16,11 +16,11 @@ import {
     DuckDbSliceConfig,
     type DuckDbSliceState,
 } from "@sqlrooms/duckdb";
-import { DatabaseIcon } from "lucide-react";
 import { z } from "zod";
+import { DatabaseIcon } from "lucide-react";
 
-import { UploadFile } from "./FileDropzone";
-import { TableStructure } from "./TableStructurePanel";
+import { MainView } from "./MainView";
+import { DataView } from "./DataView";
 
 // Define combined config schema
 export const RoomConfig =
@@ -28,54 +28,55 @@ export const RoomConfig =
 export type RoomConfig = z.infer<typeof RoomConfig>;
 
 // Define combined state type
-export type AppRoomState = RoomShellSliceState<BaseRoomConfig> &
+export type RoomState = RoomShellSliceState<RoomConfig> &
     SqlEditorSliceState &
-    DuckDbSliceState;
+    DuckDbSliceState & {}; // can add my own state here
 
 export const { roomStore, useRoomStore } = createRoomStore<
     RoomConfig,
-    AppRoomState
+    RoomState
 >((set, get, store) => ({
     // base room slice
-    ...createRoomShellSlice<BaseRoomConfig>({
+    ...createRoomShellSlice<RoomConfig>({
         config: {
             title: "My Data App",
             layout: {
                 type: "mosaic",
                 nodes: {
                     direction: "row",
-                    first: {
-                        direction: "column",
-                        first: "upload-file",
-                        second: "table-structure",
-                        splitPercentage: 30,
-                    },
+                    // first: {
+                    //     direction: "column",
+                    //     first: "upload-file",
+                    //     second: "table-structure",
+                    //     splitPercentage: 30,
+                    // },
+                    first: "data-view",
                     second: "main-view",
                     splitPercentage: 30,
                 },
             },
-            dataSources: [],
             ...createDefaultSqlEditorConfig(),
             ...createDefaultDuckDbConfig(),
         },
         room: {
             panels: {
-                "upload-file": {
-                    title: "Data Sources",
+                // "upload-file": {
+                //     component: UploadFile,
+                //     placement: "sidebar",
+                // },
+                // "table-structure": {
+                //     component: TableStructure,
+                //     placement: "sidebar",
+                // },
+                "data-view": {
+                    title: "Data View",
                     icon: DatabaseIcon,
-                    component: UploadFile,
-                    placement: "main",
-                },
-                "table-structure": {
-                    title: "Table Structure",
-                    icon: () => null,
-                    component: TableStructure,
-                    placement: "main",
+                    component: DataView,
+                    placement: "sidebar",
                 },
                 "main-view": {
                     title: "Main View",
-                    icon: () => null,
-                    component: () => null,
+                    component: MainView,
                     placement: "main",
                 },
             },
@@ -84,5 +85,7 @@ export const { roomStore, useRoomStore } = createRoomStore<
 
     // Sql editor slice
     ...createSqlEditorSlice()(set, get, store),
+
+    // DuckDB slice
     ...createDuckDbSlice({})(set, get, store),
 }));

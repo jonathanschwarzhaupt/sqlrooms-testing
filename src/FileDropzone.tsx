@@ -1,5 +1,4 @@
 import { RoomPanel } from "@sqlrooms/room-shell";
-import { TableStructurePanel } from "@sqlrooms/sql-editor";
 import { FileDropzone } from "@sqlrooms/dropzone";
 import { useRoomStore } from "./store";
 import { convertToValidColumnOrTableName } from "@sqlrooms/utils";
