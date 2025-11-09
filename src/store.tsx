@@ -2,6 +2,7 @@ import {
     BaseRoomConfig,
     createRoomShellSlice,
     createRoomStore,
+    LayoutConfig,
     type RoomShellSliceState,
 } from "@sqlrooms/room-shell";
 import {
@@ -20,7 +21,8 @@ import { z } from "zod";
 import { DatabaseIcon } from "lucide-react";
 
 import { MainView } from "./MainView";
-import { DataView } from "./DataView";
+// import { DataView } from "./DataView";
+import { DataViewAccordion } from "./DataViewV2";
 
 // Define combined config schema
 export const RoomConfig =
@@ -30,7 +32,44 @@ export type RoomConfig = z.infer<typeof RoomConfig>;
 // Define combined state type
 export type RoomState = RoomShellSliceState<RoomConfig> &
     SqlEditorSliceState &
-    DuckDbSliceState & {}; // can add my own state here
+    DuckDbSliceState & {
+        currentWorkspace: WorkspaceId;
+        setCurrentWorkspace: (workspace: WorkspaceId) => void;
+    }; // can add my own state here
+
+// Create workspace layout configs
+
+const dataWorkspace: LayoutConfig = {
+    type: "mosaic",
+    nodes: {
+        direction: "row",
+        first: "file-upload",
+        second: "data-connectors",
+        splitPercentage: 40,
+    },
+};
+
+const queryWorkspace: LayoutConfig = {
+    type: "mosaic",
+    nodes: {
+        direction: "row",
+        first: "data-view",
+        second: "ai-view",
+        splitPercentage: 30,
+    },
+};
+
+const chartWorkspace: LayoutConfig = {
+    type: "mosaic",
+    nodes: "chart-view",
+};
+
+const WORKSPACES = {
+    data: dataWorkspace,
+    query: queryWorkspace,
+    chart: chartWorkspace,
+};
+type WorkspaceId = keyof typeof WORKSPACES;
 
 export const { roomStore, useRoomStore } = createRoomStore<
     RoomConfig,
@@ -40,41 +79,19 @@ export const { roomStore, useRoomStore } = createRoomStore<
     ...createRoomShellSlice<RoomConfig>({
         config: {
             title: "My Data App",
-            layout: {
-                type: "mosaic",
-                nodes: {
-                    direction: "row",
-                    // first: {
-                    //     direction: "column",
-                    //     first: "upload-file",
-                    //     second: "table-structure",
-                    //     splitPercentage: 30,
-                    // },
-                    first: "data-view",
-                    second: "main-view",
-                    splitPercentage: 30,
-                },
-            },
+            layout: WORKSPACES.query,
             ...createDefaultSqlEditorConfig(),
             ...createDefaultDuckDbConfig(),
         },
         room: {
             panels: {
-                // "upload-file": {
-                //     component: UploadFile,
-                //     placement: "sidebar",
-                // },
-                // "table-structure": {
-                //     component: TableStructure,
-                //     placement: "sidebar",
-                // },
                 "data-view": {
                     title: "Data View",
                     icon: DatabaseIcon,
-                    component: DataView,
-                    placement: "sidebar",
+                    component: DataViewAccordion,
+                    placement: "main",
                 },
-                "main-view": {
+                "ai-view": {
                     title: "Main View",
                     component: MainView,
                     placement: "main",
@@ -88,4 +105,18 @@ export const { roomStore, useRoomStore } = createRoomStore<
 
     // DuckDB slice
     ...createDuckDbSlice({})(set, get, store),
+
+    // Workspace state
+    currentWorkspace: "query" as WorkspaceId,
+    setCurrentWorkspace: (workspace: WorkspaceId) => {
+        // Update workspace state
+        set({ currentWorkspace: workspace });
+
+        // switch to new layout
+        const newLayout = WORKSPACES[workspace];
+        get().layout.setLayout(newLayout);
+
+        // log for debugging
+        console.log(`Switched to workspace: ${workspace}`);
+    },
 }));
