@@ -20,7 +20,7 @@ export const DataViewAccordion: FC = () => {
     const { toast } = useToast();
     return (
         <>
-            <Accordion type="multiple" defaultValue={["upload"]}>
+            <Accordion type="multiple" defaultValue={["upload", "schema"]}>
                 {/*File upload*/}
                 <AccordionItem value="upload">
                     <AccordionTrigger className="gap-1 px-0">

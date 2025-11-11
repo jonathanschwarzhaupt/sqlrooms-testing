@@ -14,7 +14,7 @@ import { PlusIcon } from "lucide-react";
 import { type FC } from "react";
 import { useRoomStore } from "./store";
 
-export const MainView: FC = () => {
+export const EditorView: FC = () => {
     const createTableModal = useDisclosure();
     const lastQueryStatement = useRoomStore((s) =>
         s.sqlEditor.queryResult?.status === "success" &&
