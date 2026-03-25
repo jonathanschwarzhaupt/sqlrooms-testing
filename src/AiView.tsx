@@ -11,7 +11,7 @@ import { useRoomStore } from "./store";
 
 export const AiView: React.FC = () => {
     const currentSessionId = useRoomStore(
-        (state) => state.config.currentSessionId || null,
+        (state) => state.ai?.config?.currentSessionId || null,
     );
     const isDataAvailable = useRoomStore((state) => state.room.initialized);
 

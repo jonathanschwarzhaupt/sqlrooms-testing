@@ -6,15 +6,15 @@ import {
     type RoomShellSliceState,
 } from "@sqlrooms/room-shell";
 import {
-    createDefaultSqlEditorConfig,
     createSqlEditorSlice,
-    SqlEditorSliceConfig,
     type SqlEditorSliceState,
 } from "@sqlrooms/sql-editor";
 import {
-    createDefaultDuckDbConfig,
+    createDefaultSqlEditorConfig,
+    SqlEditorSliceConfig,
+} from "@sqlrooms/sql-editor-config";
+import {
     createDuckDbSlice,
-    DuckDbSliceConfig,
     type DuckDbSliceState,
 } from "@sqlrooms/duckdb";
 import {
@@ -42,7 +42,6 @@ import { AiView } from "./AiView";
 
 // Define combined config schema
 export const RoomConfig = BaseRoomConfig.merge(SqlEditorSliceConfig)
-    .merge(DuckDbSliceConfig)
     .merge(AiSliceConfig)
     .merge(AiSettingsSliceConfig);
 export type RoomConfig = z.infer<typeof RoomConfig>;
@@ -105,7 +104,6 @@ export const { roomStore, useRoomStore } = createRoomStore<
             title: "My Data App",
             layout: WORKSPACES.query,
             ...createDefaultSqlEditorConfig(),
-            ...createDefaultDuckDbConfig(),
             ...createDefaultAiConfig(),
             ...createDefaultAiSettingsConfig(AI_SETTINGS),
         },
